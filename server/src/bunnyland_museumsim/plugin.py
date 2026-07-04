@@ -19,7 +19,7 @@ from .events import PieceAppraisedEvent, PieceDonatedEvent
 from .exhibits import ExhibitCompletedEvent
 from .install import install_museumsim
 
-PLUGIN_ID = "bunnyland_museumsim"
+PLUGIN_ID = "bunnyland.museumsim"
 
 
 def plugin() -> Plugin:
