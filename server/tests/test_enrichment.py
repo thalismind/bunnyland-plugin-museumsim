@@ -103,3 +103,67 @@ def test_plain_object_is_not_tagged():
     entity = _generate_object(actor, tags=("wooden", "crate"))
 
     assert not entity.has_component(CollectibleComponent)
+
+
+def test_furnishing_a_museum_is_idempotent():
+    actor = _actor()
+    room = _generate_room(actor, tags=("museum",))
+    cases_before = len(_component_types(actor, room, DisplayCaseComponent))
+
+    # Re-firing the room-generated event must not double-furnish the museum.
+    event = RoomGeneratedEvent(
+        **event_base(0),
+        seed="seed",
+        entity_id=str(room.id),
+        entity_key="hall",
+        entity_kind="room",
+        generation=GenerationIntentComponent(tags=("museum",), description=""),
+        room_key="hall",
+    )
+    _publish(actor, event)
+
+    assert len(_component_types(actor, room, DisplayCaseComponent)) == cases_before
+
+
+def test_tagging_a_collectible_is_idempotent():
+    actor = _actor()
+    entity = _generate_object(actor, tags=("fossil",), description="a rare trilobite")
+    first = entity.get_component(CollectibleComponent)
+
+    event = ObjectGeneratedEvent(
+        **event_base(0),
+        seed="seed",
+        entity_id=str(entity.id),
+        entity_key="thing",
+        entity_kind="object",
+        generation=GenerationIntentComponent(tags=("gem",), description="a diamond"),
+        object_key="thing",
+    )
+    _publish(actor, event)
+
+    assert entity.get_component(CollectibleComponent) == first  # unchanged
+
+
+def test_generation_events_for_unknown_entities_are_ignored():
+    actor = _actor()
+    hook = actor  # events referencing a non-existent entity must be no-ops
+    room_event = RoomGeneratedEvent(
+        **event_base(0),
+        seed="seed",
+        entity_id="entity_9999",
+        entity_key="hall",
+        entity_kind="room",
+        generation=GenerationIntentComponent(tags=("museum",), description=""),
+        room_key="hall",
+    )
+    object_event = ObjectGeneratedEvent(
+        **event_base(0),
+        seed="seed",
+        entity_id="???",
+        entity_key="thing",
+        entity_kind="object",
+        generation=GenerationIntentComponent(tags=("fossil",), description=""),
+        object_key="thing",
+    )
+    _publish(hook, room_event)
+    _publish(hook, object_event)  # no exception -> handled gracefully

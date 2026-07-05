@@ -21,8 +21,10 @@ from bunnyland.core import (
 )
 from relics import Entity, World
 
+from .authentication import AuthenticityComponent
 from .components import CollectibleComponent, ExhibitComponent, MuseumComponent
 from .display import DisplayCaseComponent
+from .restoration import ConditionComponent
 
 
 def _link_into_room(world: World, entity: Entity, room_id) -> None:
@@ -40,17 +42,26 @@ def spawn_collectible(
     name: str = "curio",
     category: str = "curio",
     rarity: str = "common",
+    genuine: bool | None = None,
+    condition: float | None = None,
 ) -> Entity:
-    """Spawn a holdable collectible item, optionally placed in ``room_id``."""
-    item = spawn_entity(
-        world,
-        [
-            IdentityComponent(name=name, kind="item", tags=("museumsim", "collectible")),
-            PortableComponent(),
-            HoldableComponent(slot="hand"),
-            CollectibleComponent(category=category, rarity=rarity),
-        ],
-    )
+    """Spawn a holdable collectible item, optionally placed in ``room_id``.
+
+    Pass ``genuine`` to give the piece a hidden authenticity ground truth (so it can be
+    authenticated as genuine or exposed as a forgery), and ``condition`` (``0.0``-``1.0``) to
+    give it a physical condition below pristine (so it can be restored).
+    """
+    components = [
+        IdentityComponent(name=name, kind="item", tags=("museumsim", "collectible")),
+        PortableComponent(),
+        HoldableComponent(slot="hand"),
+        CollectibleComponent(category=category, rarity=rarity),
+    ]
+    if genuine is not None:
+        components.append(AuthenticityComponent(genuine=genuine))
+    if condition is not None:
+        components.append(ConditionComponent(condition=condition))
+    item = spawn_entity(world, components)
     _link_into_room(world, item, room_id)
     return item
 

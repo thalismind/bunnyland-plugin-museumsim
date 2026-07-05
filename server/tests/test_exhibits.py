@@ -121,6 +121,51 @@ def test_completing_an_exhibit_raises_the_donor_reputation():
     assert bond.affinity > 0.0
 
 
+def test_reward_is_skipped_when_the_curator_id_is_unparseable():
+    actor = WorldActor()
+    room = spawn_museum(actor.world, curator_id="not-an-id")
+    ada = _character(actor.world, room)
+    exhibit = spawn_exhibit(
+        actor.world, room_id=room.id, category="fossil", required=("trilobite",)
+    )
+    replace_component(
+        exhibit,
+        replace(
+            exhibit.get_component(ExhibitComponent),
+            donated=("trilobite",),
+            last_donor_id=str(ada.id),
+        ),
+    )
+
+    events = MuseumConsequence().process(actor.world, EPOCH)
+
+    assert isinstance(events[0], ExhibitCompletedEvent)  # completes despite the bad curator id
+
+
+def test_reward_is_skipped_when_the_curator_entity_is_gone():
+    actor = WorldActor()
+    curator = spawn_curator(actor.world, name="Curator")
+    curator_id = curator.id
+    room = spawn_museum(actor.world, curator_id=str(curator_id))
+    ada = _character(actor.world, room)
+    exhibit = spawn_exhibit(
+        actor.world, room_id=room.id, category="fossil", required=("trilobite",)
+    )
+    replace_component(
+        exhibit,
+        replace(
+            exhibit.get_component(ExhibitComponent),
+            donated=("trilobite",),
+            last_donor_id=str(ada.id),
+        ),
+    )
+    actor.world.remove(curator_id)  # curator parses but no longer exists
+
+    events = MuseumConsequence().process(actor.world, EPOCH)
+
+    assert isinstance(events[0], ExhibitCompletedEvent)
+
+
 def test_completion_without_a_curator_still_completes():
     actor = WorldActor()
     room = spawn_museum(actor.world)  # no curator_id

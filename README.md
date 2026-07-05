@@ -23,8 +23,38 @@ The bundle:
 - **Display cases** — donated pieces rest in a `DisplayCaseComponent`, and the museum's prompt
   fragments list the most notable pieces on display plus a running "N of M donated" tally.
 
+The v2 expansion makes the museum feel like part of one living world:
+
+- **Authentication & forgeries** (headline) — every collectible carries a hidden ground truth
+  on an `AuthenticityComponent`; an `authenticate` verb examines a reachable piece and settles
+  whether it is genuine or a forgery. An exposed forgery becomes a notable world moment.
+- **Restoration** — a damaged piece carries a `ConditionComponent`; a `restore` verb brings it
+  back to pristine display condition and stamps who did the work.
+- **Visitors & tours** — atmospheric prompt lines (a quiet gallery, a steady stream, a guided
+  tour around the star piece) derived deterministically from what is on display; no ticketing
+  or admission accounting.
+- **Provenance through core systems** — each donation writes a world-**history** record,
+  requests a generated display **image** (imagegen), files a **memory** journal line, projects
+  the donor's deed **reputation**, and accrues a `PatronOf` typed edge for donor recognition.
+- **Storyteller** — when a museum's collection grows into a famous draw, it raises a core
+  `famous_exhibit` incident so world pressure is paced and other packs can react.
+
 A worldgen hook furnishes museum-like generated rooms (curator, exhibits, a display case, and
-a few seeded collectibles) and tags collectible-looking generated objects, all deterministically.
+a few seeded collectibles — including a hidden forgery and a damaged piece so the v2 verbs have
+something to act on) and tags collectible-looking generated objects, all deterministically.
+
+### Verbs
+
+- `donate` — give a held collectible to the museum you stand in.
+- `appraise` — read a reachable collectible's category, rarity, and value (no state change).
+- `authenticate` — examine a reachable collectible to confirm it is genuine or expose a forgery.
+- `restore` — restore a reachable damaged collectible to pristine condition.
+
+### Synergy (optional)
+
+Museumsim reads the dependency-free `CollectibleComponent` surface, so it runs fully standalone.
+It only *recommends* collection-source packs (anglersim, wildsim, aquasim, loresim, cryptidsim)
+to light up wings fed by other packs — never requires them.
 
 This repo intentionally keeps all museum work outside the main `bunnyland-server` repo.
 
@@ -38,10 +68,15 @@ This repo intentionally keeps all museum work outside the main `bunnyland-server
 
 The plugin exposes `bunnyland_museumsim.bunnyland_plugins()` and contributes:
 
-- `CollectibleComponent`, `MuseumComponent`, `ExhibitComponent`, `DisplayCaseComponent`.
-- `donate` and `appraise` - the two player/AI verbs.
+- `CollectibleComponent`, `MuseumComponent`, `ExhibitComponent`, `DisplayCaseComponent`,
+  `AuthenticityComponent`, `ConditionComponent`, and the `PatronOf` typed edge.
+- `donate`, `appraise`, `authenticate`, and `restore` - the four player/AI verbs.
 - `MuseumConsequence` - completes filled exhibits and rewards donors each tick.
-- `museum_fragments` - renders notable pieces on display and the donation tally into prompts.
+- `MuseumStorytellerConsequence` - raises a `famous_exhibit` incident when a museum becomes a draw.
+- `MuseumProvenanceReactor` - routes donations/verdicts through core history, imagegen, memory,
+  and reputation.
+- `museum_fragments` and `visitor_fragments` - render notable pieces, the donation tally, and
+  the current crowd into prompts.
 - `MuseumWorldgenHook` - furnishes museum rooms and tags collectible objects in generated worlds.
 - `spawn_collectible`, `spawn_museum`, `spawn_exhibit`, `spawn_display_case`, `spawn_curator`
   - spawn factories.

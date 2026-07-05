@@ -63,11 +63,14 @@ SEED_EXHIBITS: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("art", ("still life", "portrait bust")),
 )
 
-#: A few loose collectibles left in a generated museum for players to donate.
-SEED_COLLECTIBLES: tuple[tuple[str, str, str], ...] = (
-    ("trilobite", "fossil", "uncommon"),
-    ("bronze idol", "relic", "rare"),
-    ("odd curio", "curio", "common"),
+#: A few loose collectibles left in a generated museum for players to donate. Each is
+#: ``(name, category, rarity, genuine, condition)``: one seeds a hidden forgery to authenticate
+#: and one seeds a damaged piece to restore, so the v2 verbs have something to act on out of the
+#: box. ``genuine``/``condition`` of ``None`` leaves the piece a plain collectible.
+SEED_COLLECTIBLES: tuple[tuple[str, str, str, bool | None, float | None], ...] = (
+    ("trilobite", "fossil", "uncommon", True, None),
+    ("bronze idol", "relic", "rare", False, None),
+    ("odd curio", "curio", "common", None, 0.4),
 )
 
 
@@ -121,9 +124,15 @@ class MuseumWorldgenHook:
         spawn_display_case(world, room_id=room.id)
         for category, required in SEED_EXHIBITS:
             spawn_exhibit(world, room_id=room.id, category=category, required=required)
-        for piece_name, category, rarity in SEED_COLLECTIBLES:
+        for piece_name, category, rarity, genuine, condition in SEED_COLLECTIBLES:
             spawn_collectible(
-                world, room_id=room.id, name=piece_name, category=category, rarity=rarity
+                world,
+                room_id=room.id,
+                name=piece_name,
+                category=category,
+                rarity=rarity,
+                genuine=genuine,
+                condition=condition,
             )
 
     def _on_object(self, event: ObjectGeneratedEvent) -> None:
