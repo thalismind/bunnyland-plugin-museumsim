@@ -17,12 +17,18 @@ from bunnyland.core import (
     IdentityComponent,
     PortableComponent,
     RoomComponent,
+    parse_entity_id,
     spawn_entity,
 )
 from relics import Entity, World
 
 from .authentication import AuthenticityComponent
-from .components import CollectibleComponent, ExhibitComponent, MuseumComponent
+from .components import (
+    CollectibleComponent,
+    ExhibitComponent,
+    MuseumComponent,
+    MuseumHasCurator,
+)
 from .display import DisplayCaseComponent
 from .restoration import ConditionComponent
 
@@ -68,13 +74,17 @@ def spawn_collectible(
 
 def spawn_museum(world: World, *, name: str = "Museum", curator_id: str = "") -> Entity:
     """Spawn a room that acts as a museum, ready to accept donations."""
-    return spawn_entity(
+    museum = spawn_entity(
         world,
         [
             RoomComponent(title=name, indoor=True),
-            MuseumComponent(name=name, curator_id=curator_id),
+            MuseumComponent(name=name),
         ],
     )
+    parsed_curator_id = parse_entity_id(curator_id)
+    if parsed_curator_id is not None and world.has_entity(parsed_curator_id):
+        museum.add_relationship(MuseumHasCurator(), parsed_curator_id)
+    return museum
 
 
 def spawn_exhibit(
@@ -88,9 +98,7 @@ def spawn_exhibit(
     exhibit = spawn_entity(
         world,
         [
-            IdentityComponent(
-                name=f"{category} exhibit", kind="exhibit", tags=("museumsim",)
-            ),
+            IdentityComponent(name=f"{category} exhibit", kind="exhibit", tags=("museumsim",)),
             ExhibitComponent(category=category, required=tuple(sorted(dict.fromkeys(required)))),
         ],
     )

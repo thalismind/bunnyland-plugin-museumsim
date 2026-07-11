@@ -34,7 +34,12 @@ from .collectibles import (
     piece_key,
     rarity_rank,
 )
-from .components import CollectibleComponent, ExhibitComponent, MuseumComponent
+from .components import (
+    CollectibleComponent,
+    ExhibitComponent,
+    MuseumComponent,
+    MuseumHasCurator,
+)
 from .display import (
     DisplayCaseComponent,
     display_case_in_room,
@@ -42,7 +47,7 @@ from .display import (
     museum_fragments,
 )
 from .donation import DONATE_DEF, DonateHandler
-from .enrichment import MuseumWorldgenHook
+from .enrichment import MuseumGenerationEnricher
 from .events import PieceAppraisedEvent, PieceDonatedEvent
 from .exhibits import (
     COMPLETION_BOND,
@@ -105,10 +110,11 @@ __all__ = [
     "ExhibitComponent",
     "FamousExhibitEvent",
     "MuseumComponent",
+    "MuseumHasCurator",
     "MuseumConsequence",
     "MuseumProvenanceReactor",
     "MuseumStorytellerConsequence",
-    "MuseumWorldgenHook",
+    "MuseumGenerationEnricher",
     "PatronOf",
     "PieceAppraisedEvent",
     "PieceAuthenticatedEvent",

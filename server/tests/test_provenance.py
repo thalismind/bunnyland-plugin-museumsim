@@ -15,8 +15,8 @@ from bunnyland.core import (
 from bunnyland.core.commands import CommandCost, Lane, build_submitted_command
 from bunnyland.core.events import EventVisibility, event_base
 from bunnyland.core.handlers import HandlerContext
+from bunnyland.foundation.history.mechanics import DeedReputationComponent, world_history_records
 from bunnyland.imagegen.components import ImageRequestComponent
-from bunnyland.mechanics.history import DeedReputationComponent, world_history_records
 from bunnyland.memory import install_memory
 
 from bunnyland_museumsim import (

@@ -3,7 +3,7 @@
 When a museum's collection grows valuable enough to become a genuine draw, that is world
 pressure the storyteller should pace and other packs should feel. The
 :class:`MuseumStorytellerConsequence` watches every museum and, the first time one crosses into
-"famous" territory, spawns a core :class:`~bunnyland.mechanics.storyteller.IncidentComponent`
+"famous" territory, spawns a Foundation Storyteller ``IncidentComponent``
 (``famous_exhibit``) in the museum room. Because the incident uses the core component, the
 storyteller's own prompt surface picks it up automatically — no parallel incident system.
 
@@ -15,7 +15,7 @@ from __future__ import annotations
 
 from bunnyland.core import ContainmentMode, Contains, IdentityComponent, contents, spawn_entity
 from bunnyland.core.events import DomainEvent, EventVisibility, event_base
-from bunnyland.mechanics.storyteller import IncidentComponent
+from bunnyland.foundation.storyteller.mechanics import IncidentComponent
 from relics import Entity, World
 
 from .components import MuseumComponent

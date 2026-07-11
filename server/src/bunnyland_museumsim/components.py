@@ -20,7 +20,7 @@ Components are frozen; every mutation swaps a whole value with
 from __future__ import annotations
 
 from pydantic.dataclasses import dataclass
-from relics import Component
+from relics import Component, Edge
 
 
 @dataclass(frozen=True)
@@ -41,8 +41,12 @@ class MuseumComponent(Component):
     """A room that accepts donations. ``donated`` is the sorted piece-key ledger."""
 
     name: str = "Museum"
-    curator_id: str = ""
     donated: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class MuseumHasCurator(Edge):
+    """museum room -> curator character."""
 
 
 @dataclass(frozen=True)
@@ -56,4 +60,9 @@ class ExhibitComponent(Component):
     last_donor_id: str = ""
 
 
-__all__ = ["CollectibleComponent", "ExhibitComponent", "MuseumComponent"]
+__all__ = [
+    "CollectibleComponent",
+    "ExhibitComponent",
+    "MuseumComponent",
+    "MuseumHasCurator",
+]

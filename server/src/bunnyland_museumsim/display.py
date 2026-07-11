@@ -88,8 +88,7 @@ def museum_fragments(world: World, character: Entity) -> list[str]:
     for piece in pieces[:MAX_NOTABLE]:
         component = piece.get_component(CollectibleComponent)
         lines.append(
-            f"On display: {entity_name(piece)} "
-            f"(a {component.rarity} {component.category})."
+            f"On display: {entity_name(piece)} (a {component.rarity} {component.category})."
         )
     extra = len(pieces) - MAX_NOTABLE
     if extra > 0:

@@ -9,7 +9,7 @@ from bunnyland.core import (
     WorldActor,
     spawn_entity,
 )
-from bunnyland.mechanics.storyteller import IncidentComponent
+from bunnyland.foundation.storyteller.mechanics import IncidentComponent
 
 from bunnyland_museumsim import spawn_collectible, spawn_museum
 from bunnyland_museumsim.incidents import (

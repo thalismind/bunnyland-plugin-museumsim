@@ -95,9 +95,7 @@ class DonateHandler:
         if exhibit is not None:
             component = exhibit.get_component(ExhibitComponent)
             merged = tuple(sorted(dict.fromkeys((*component.donated, name))))
-            replace_component(
-                exhibit, replace(component, donated=merged, last_donor_id=donor_id)
-            )
+            replace_component(exhibit, replace(component, donated=merged, last_donor_id=donor_id))
 
     def _display(self, ctx, room, item) -> None:
         remove_from_container(ctx.world, item.id)

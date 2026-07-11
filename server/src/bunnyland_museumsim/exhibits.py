@@ -17,11 +17,10 @@ from dataclasses import replace
 
 from bunnyland.core.ecs import parse_entity_id, replace_component
 from bunnyland.core.events import DomainEvent, EventVisibility, event_base
-from bunnyland.mechanics.social import adjust_bond
+from bunnyland.foundation.social.mechanics import adjust_bond
 from relics import World
 
-from .components import ExhibitComponent, MuseumComponent
-from .museum import museum_of
+from .components import ExhibitComponent, MuseumHasCurator
 from .spatial import room_of
 
 #: Reputation deltas granted to a donor by the curator when an exhibit they filled completes.
@@ -70,12 +69,14 @@ class MuseumConsequence:
 
     def _reward_donor(self, world: World, exhibit, component: ExhibitComponent) -> None:
         room = room_of(world, exhibit.id)
-        museum: MuseumComponent | None = museum_of(room)
-        if museum is None or not museum.curator_id or not component.last_donor_id:
+        if room is None or not component.last_donor_id:
             return
-        curator_id = parse_entity_id(museum.curator_id)
+        curators = room.get_relationships(MuseumHasCurator)
+        if len(curators) != 1:
+            return
+        curator_id = curators[0][1]
         donor_id = parse_entity_id(component.last_donor_id)
-        if curator_id is None or donor_id is None:
+        if donor_id is None:
             return
         if not world.has_entity(curator_id) or not world.has_entity(donor_id):
             return

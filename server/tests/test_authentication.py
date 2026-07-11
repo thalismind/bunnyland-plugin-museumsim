@@ -53,9 +53,7 @@ def _authenticate(actor, character, item):
 def _ctx():
     world = WorldActor().world
     entity = spawn_entity(world, [IdentityComponent(name="viewer", kind="character")])
-    return ComponentPromptContext(
-        perspective=PromptPerspective(viewer=entity), entity=entity
-    )
+    return ComponentPromptContext(perspective=PromptPerspective(viewer=entity), entity=entity)
 
 
 # -- component / helpers ----------------------------------------------------------------

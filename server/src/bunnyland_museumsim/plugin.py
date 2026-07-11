@@ -18,10 +18,15 @@ from .authentication import (
     AuthenticityComponent,
     PieceAuthenticatedEvent,
 )
-from .components import CollectibleComponent, ExhibitComponent, MuseumComponent
+from .components import (
+    CollectibleComponent,
+    ExhibitComponent,
+    MuseumComponent,
+    MuseumHasCurator,
+)
 from .display import DisplayCaseComponent, museum_fragments
 from .donation import DONATION_ACTION_DEFINITIONS, DONATION_ACTION_HANDLERS
-from .enrichment import MuseumWorldgenHook
+from .enrichment import MuseumGenerationEnricher
 from .events import PieceAppraisedEvent, PieceDonatedEvent
 from .exhibits import ExhibitCompletedEvent
 from .incidents import FamousExhibitEvent
@@ -65,7 +70,7 @@ def plugin() -> Plugin:
                 AuthenticityComponent,
                 ConditionComponent,
             ),
-            edges=(PatronOf,),
+            edges=(PatronOf, MuseumHasCurator),
         ),
         commands=CommandContribution(
             action_handlers=(
@@ -94,7 +99,7 @@ def plugin() -> Plugin:
         ),
         content=ContentContribution(
             prompt_fragments=(museum_fragments, visitor_fragments),
-            worldgen_hooks=(MuseumWorldgenHook,),
+            generation_enrichers=(MuseumGenerationEnricher(),),
         ),
     )
 

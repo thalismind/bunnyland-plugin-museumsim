@@ -19,9 +19,9 @@ from __future__ import annotations
 import logging
 
 from bunnyland.core.ecs import parse_entity_id, replace_component
+from bunnyland.foundation.history.mechanics import apply_deed_reputation, record_world_history
 from bunnyland.imagegen.components import ImageRequestComponent
 from bunnyland.imagegen.spec import ImagePurpose
-from bunnyland.mechanics.history import apply_deed_reputation, record_world_history
 from relics import World
 
 from .authentication import FORGERY, PieceAuthenticatedEvent

@@ -68,7 +68,7 @@ bunnyland serve --module bunnyland_museumsim
 ## Reuses
 
 Inventory + `IdentityComponent` tags for collectibles; the core `SocialBond` reputation layer
-(`bunnyland.mechanics.social`) for donor recognition on exhibit completion; core **history +
+(`bunnyland.foundation.social.mechanics`) for donor recognition on exhibit completion; core **history +
 imagegen** for provenance and display images; the core **memory** store for the museum journal;
 core deed **reputation**; and the core **storyteller** `IncidentComponent` for a famous exhibit.
 Synergy source packs are declared only in `DependencyContribution.recommends` — the pack runs
