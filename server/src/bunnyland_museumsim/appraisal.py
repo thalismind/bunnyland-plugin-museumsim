@@ -8,8 +8,8 @@ can reach (held or in the room), then reports its details through a
 
 from __future__ import annotations
 
-from bunnyland.core.actions import ActionArgument, ActionDefinition
-from bunnyland.core.commands import CommandCost, Lane, SubmittedCommand
+from bunnyland.core.actions import ActionArgument, ActionDefinition, ActionEffort, effort_cost
+from bunnyland.core.commands import Lane, SubmittedCommand
 from bunnyland.core.events import EventVisibility
 from bunnyland.core.handlers import (
     HandlerContext,
@@ -71,7 +71,7 @@ APPRAISE_DEF = ActionDefinition(
     title="Appraise collectible",
     description="Inspect a collectible within reach to learn its category, rarity, and value.",
     lane=Lane.WORLD,
-    cost=CommandCost(action=1),
+    cost=effort_cost(action=ActionEffort.ROUTINE),
     arguments={
         "item_id": ActionArgument(
             title="Collectible",

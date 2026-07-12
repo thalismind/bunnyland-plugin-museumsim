@@ -18,8 +18,8 @@ from __future__ import annotations
 from dataclasses import replace
 
 from bunnyland.core import ContainmentMode, Contains
-from bunnyland.core.actions import ActionArgument, ActionDefinition
-from bunnyland.core.commands import CommandCost, Lane, SubmittedCommand
+from bunnyland.core.actions import ActionArgument, ActionDefinition, ActionEffort, effort_cost
+from bunnyland.core.commands import Lane, SubmittedCommand
 from bunnyland.core.ecs import remove_from_container, replace_component
 from bunnyland.core.events import EventVisibility
 from bunnyland.core.handlers import (
@@ -111,7 +111,7 @@ DONATE_DEF = ActionDefinition(
     title="Donate collectible",
     description="Donate a collectible you are holding to the museum you are standing in.",
     lane=Lane.WORLD,
-    cost=CommandCost(action=1),
+    cost=effort_cost(action=ActionEffort.ROUTINE),
     arguments={
         "item_id": ActionArgument(
             title="Collectible",
