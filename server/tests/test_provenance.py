@@ -18,6 +18,7 @@ from bunnyland.core.handlers import HandlerContext
 from bunnyland.foundation.history.mechanics import DeedReputationComponent, world_history_records
 from bunnyland.imagegen.components import ImageRequestComponent
 from bunnyland.memory import install_memory
+from conftest import execute_handler
 
 from bunnyland_museumsim import (
     spawn_collectible,
@@ -55,7 +56,9 @@ def _donate_event(actor, character, item):
         lane=Lane.WORLD,
         payload={"item_id": str(item.id)},
     )
-    result = DonateHandler().execute(HandlerContext(world=actor.world, epoch=EPOCH), command)
+    result = execute_handler(
+        DonateHandler(), HandlerContext(world=actor.world, epoch=EPOCH), command
+    )
     assert result.ok
     return result.events[0]
 
@@ -70,7 +73,9 @@ def _authenticate_event(actor, character, item):
         lane=Lane.WORLD,
         payload={"item_id": str(item.id)},
     )
-    result = AuthenticateHandler().execute(HandlerContext(world=actor.world, epoch=EPOCH), command)
+    result = execute_handler(
+        AuthenticateHandler(), HandlerContext(world=actor.world, epoch=EPOCH), command
+    )
     assert result.ok
     return result.events[0]
 

@@ -17,16 +17,16 @@ from dataclasses import replace
 
 from bunnyland.core.actions import ActionArgument, ActionDefinition, ActionEffort, effort_cost
 from bunnyland.core.commands import Lane, SubmittedCommand
-from bunnyland.core.ecs import replace_component
 from bunnyland.core.events import DomainEvent, EventVisibility
 from bunnyland.core.handlers import (
     HandlerContext,
     HandlerResult,
-    ok,
+    planned,
     rejected,
     require_character,
     require_reachable_entity,
 )
+from bunnyland.core.mutations import MutationPlan, SetComponent
 from bunnyland.prompts import ComponentPromptContext
 from pydantic.dataclasses import dataclass
 from relics import Component, Entity
@@ -112,17 +112,21 @@ class AuthenticateHandler:
             return rejected("that piece has already been authenticated")
 
         verdict = AUTHENTIC if current.genuine else FORGERY
-        replace_component(
-            item,
-            replace(
-                current,
-                verdict=verdict,
-                examiner_id=str(character_id),
-                examined_at_epoch=ctx.epoch,
-            ),
-        )
         room = room_of(ctx.world, character_id)
-        return ok(
+        return planned(
+            MutationPlan(
+                (
+                    SetComponent(
+                        item.id,
+                        replace(
+                            current,
+                            verdict=verdict,
+                            examiner_id=str(character_id),
+                            examined_at_epoch=ctx.epoch,
+                        ),
+                    ),
+                )
+            ),
             PieceAuthenticatedEvent(
                 **ctx.event_base(
                     visibility=EventVisibility.ROOM,

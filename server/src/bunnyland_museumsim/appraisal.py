@@ -14,11 +14,12 @@ from bunnyland.core.events import EventVisibility
 from bunnyland.core.handlers import (
     HandlerContext,
     HandlerResult,
-    ok,
+    planned,
     rejected,
     require_character,
     require_reachable_entity,
 )
+from bunnyland.core.mutations import MutationPlan
 
 from .collectibles import collectible_value
 from .components import CollectibleComponent
@@ -50,7 +51,8 @@ class AppraiseHandler:
 
         collectible = item.get_component(CollectibleComponent)
         room = room_of(ctx.world, character_id)
-        return ok(
+        return planned(
+            MutationPlan(),
             PieceAppraisedEvent(
                 **ctx.event_base(
                     visibility=EventVisibility.PRIVATE,

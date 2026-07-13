@@ -16,16 +16,16 @@ from dataclasses import replace
 
 from bunnyland.core.actions import ActionArgument, ActionDefinition, ActionEffort, effort_cost
 from bunnyland.core.commands import Lane, SubmittedCommand
-from bunnyland.core.ecs import replace_component
 from bunnyland.core.events import DomainEvent, EventVisibility
 from bunnyland.core.handlers import (
     HandlerContext,
     HandlerResult,
-    ok,
+    planned,
     rejected,
     require_character,
     require_reachable_entity,
 )
+from bunnyland.core.mutations import MutationPlan, SetComponent
 from bunnyland.prompts import ComponentPromptContext
 from pydantic.dataclasses import dataclass
 from relics import Component, Entity
@@ -100,17 +100,21 @@ class RestoreHandler:
         # pristine, so ``is_damaged`` above would have rejected it).
         before = condition_of(item)
         current = item.get_component(ConditionComponent)
-        replace_component(
-            item,
-            replace(
-                current,
-                condition=PRISTINE,
-                restorer_id=str(character_id),
-                restored_at_epoch=ctx.epoch,
-            ),
-        )
         room = room_of(ctx.world, character_id)
-        return ok(
+        return planned(
+            MutationPlan(
+                (
+                    SetComponent(
+                        item.id,
+                        replace(
+                            current,
+                            condition=PRISTINE,
+                            restorer_id=str(character_id),
+                            restored_at_epoch=ctx.epoch,
+                        ),
+                    ),
+                )
+            ),
             PieceRestoredEvent(
                 **ctx.event_base(
                     visibility=EventVisibility.ROOM,

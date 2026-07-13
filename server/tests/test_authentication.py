@@ -13,6 +13,7 @@ from bunnyland.core import (
 from bunnyland.core.commands import CommandCost, Lane, build_submitted_command
 from bunnyland.core.handlers import HandlerContext
 from bunnyland.prompts import ComponentPromptContext, PromptPerspective
+from conftest import execute_handler
 
 from bunnyland_museumsim import spawn_collectible, spawn_museum
 from bunnyland_museumsim.authentication import (
@@ -47,7 +48,9 @@ def _authenticate(actor, character, item):
         lane=Lane.WORLD,
         payload={"item_id": str(item.id)},
     )
-    return AuthenticateHandler().execute(HandlerContext(world=actor.world, epoch=EPOCH), command)
+    return execute_handler(
+        AuthenticateHandler(), HandlerContext(world=actor.world, epoch=EPOCH), command
+    )
 
 
 def _ctx():

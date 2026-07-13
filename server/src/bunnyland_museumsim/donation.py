@@ -20,16 +20,16 @@ from dataclasses import replace
 from bunnyland.core import ContainmentMode, Contains
 from bunnyland.core.actions import ActionArgument, ActionDefinition, ActionEffort, effort_cost
 from bunnyland.core.commands import Lane, SubmittedCommand
-from bunnyland.core.ecs import remove_from_container, replace_component
 from bunnyland.core.events import EventVisibility
 from bunnyland.core.handlers import (
     HandlerContext,
     HandlerResult,
-    ok,
+    planned,
     rejected,
     require_character,
     require_entity,
 )
+from bunnyland.core.mutations import AddEdge, MutationPlan, RemoveEdge, SetComponent
 
 from .collectibles import collectible_piece_key
 from .components import CollectibleComponent, ExhibitComponent, MuseumComponent
@@ -72,9 +72,34 @@ class DonateHandler:
         if key in museum.donated:
             return rejected("that piece is already in the collection")
 
-        self._record(ctx, room, museum, collectible, name, key, str(character_id))
-        self._display(ctx, room, item)
-        return ok(
+        operations = [
+            SetComponent(
+                room.id,
+                replace(museum, donated=tuple(sorted((*museum.donated, key)))),
+            )
+        ]
+        exhibit = exhibit_for_category(ctx.world, room, collectible.category)
+        if exhibit is not None:
+            component = exhibit.get_component(ExhibitComponent)
+            merged = tuple(sorted(dict.fromkeys((*component.donated, name))))
+            operations.append(
+                SetComponent(
+                    exhibit.id,
+                    replace(component, donated=merged, last_donor_id=str(character_id)),
+                )
+            )
+        operations.append(RemoveEdge(holder.id, item.id, Contains))
+        case = display_case_in_room(ctx.world, room)
+        if case is not None:
+            operations.append(
+                AddEdge(case.id, item.id, Contains(mode=ContainmentMode.CONTAINER))
+            )
+        else:
+            operations.append(
+                AddEdge(room.id, item.id, Contains(mode=ContainmentMode.ROOM_CONTENT))
+            )
+        return planned(
+            MutationPlan(tuple(operations)),
             PieceDonatedEvent(
                 **ctx.event_base(
                     visibility=EventVisibility.ROOM,
@@ -88,23 +113,6 @@ class DonateHandler:
                 )
             )
         )
-
-    def _record(self, ctx, room, museum, collectible, name, key, donor_id) -> None:
-        replace_component(room, replace(museum, donated=tuple(sorted((*museum.donated, key)))))
-        exhibit = exhibit_for_category(ctx.world, room, collectible.category)
-        if exhibit is not None:
-            component = exhibit.get_component(ExhibitComponent)
-            merged = tuple(sorted(dict.fromkeys((*component.donated, name))))
-            replace_component(exhibit, replace(component, donated=merged, last_donor_id=donor_id))
-
-    def _display(self, ctx, room, item) -> None:
-        remove_from_container(ctx.world, item.id)
-        case = display_case_in_room(ctx.world, room)
-        if case is not None:
-            case.add_relationship(Contains(mode=ContainmentMode.CONTAINER), item.id)
-        else:
-            room.add_relationship(Contains(mode=ContainmentMode.ROOM_CONTENT), item.id)
-
 
 DONATE_DEF = ActionDefinition(
     command_type="donate",

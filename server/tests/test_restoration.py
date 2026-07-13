@@ -13,6 +13,7 @@ from bunnyland.core import (
 from bunnyland.core.commands import CommandCost, Lane, build_submitted_command
 from bunnyland.core.handlers import HandlerContext
 from bunnyland.prompts import ComponentPromptContext, PromptPerspective
+from conftest import execute_handler
 
 from bunnyland_museumsim import spawn_collectible, spawn_museum
 from bunnyland_museumsim.restoration import (
@@ -45,7 +46,9 @@ def _restore(actor, character, item):
         lane=Lane.WORLD,
         payload={"item_id": str(item.id)},
     )
-    return RestoreHandler().execute(HandlerContext(world=actor.world, epoch=EPOCH), command)
+    return execute_handler(
+        RestoreHandler(), HandlerContext(world=actor.world, epoch=EPOCH), command
+    )
 
 
 def _ctx():

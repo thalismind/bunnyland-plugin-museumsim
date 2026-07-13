@@ -13,6 +13,7 @@ from bunnyland.core import (
 from bunnyland.core.commands import CommandCost, Lane, build_submitted_command
 from bunnyland.core.ecs import contents
 from bunnyland.core.handlers import HandlerContext
+from conftest import execute_handler
 
 from bunnyland_museumsim import (
     ExhibitComponent,
@@ -59,7 +60,9 @@ def _ctx(actor):
 
 
 def _donate(actor, character, item):
-    return DonateHandler().execute(_ctx(actor), _cmd(character.id, {"item_id": str(item.id)}))
+    return execute_handler(
+        DonateHandler(), _ctx(actor), _cmd(character.id, {"item_id": str(item.id)})
+    )
 
 
 def test_donate_records_piece_and_moves_it_to_the_museum():

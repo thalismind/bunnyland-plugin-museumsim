@@ -14,6 +14,7 @@ from bunnyland.core.commands import CommandCost, Lane, build_submitted_command
 from bunnyland.core.ecs import replace_component
 from bunnyland.core.handlers import HandlerContext
 from bunnyland.foundation.social.mechanics import bond_between
+from conftest import execute_handler
 
 from bunnyland_museumsim import (
     ExhibitCompletedEvent,
@@ -48,7 +49,9 @@ def _donate(actor, character, item):
         lane=Lane.WORLD,
         payload={"item_id": str(item.id)},
     )
-    return DonateHandler().execute(HandlerContext(world=actor.world, epoch=EPOCH), command)
+    return execute_handler(
+        DonateHandler(), HandlerContext(world=actor.world, epoch=EPOCH), command
+    )
 
 
 # -- exhibit_is_full --------------------------------------------------------------------
